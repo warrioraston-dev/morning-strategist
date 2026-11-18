@@ -1,0 +1,17 @@
+{
+  "name": "The Morning Strategist",
+  "short_name": "Strategist",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#171916",
+  "theme_color": "#171916",
+  "description": "A daily history and strategic thinking masterclass.",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
