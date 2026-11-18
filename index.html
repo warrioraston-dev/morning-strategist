@@ -82,7 +82,7 @@ function render(){
 async function syncPublishedEditions(){
  const label=document.getElementById("streakLabel");
  try{
-  const res=await fetch(`${SUPABASE_URL}/rest/v1/editions?select=id,title,content,published_at&published_at=not.is.null&order=published_at.desc`,{headers:{apikey:SUPABASE_PUBLISHABLE_KEY,Authorization:`Bearer ${SUPABASE_PUBLISHABLE_KEY}`}});
+  const res=await fetch(`${SUPABASE_URL}/rest/v1/editions?select=id,title,content,published_at&published_at=not.is.null&order=published_at.desc`,{headers:{apikey:SUPABASE_PUBLISHABLE_KEY},cache:"no-store"});
   if(!res.ok)throw new Error(`HTTP ${res.status}`);
   const rows=await res.json();
   let added=0;
@@ -98,7 +98,7 @@ async function syncPublishedEditions(){
   if(added&&state.page!="lesson")render();
  }catch(err){
   label.textContent="OFFLINE / LOCAL";
-  label.title="Could not reach the cloud library. The bundled edition remains available.";
+  label.title=`Cloud sync failed: ${err.message}. The bundled edition remains available.`;
  }
 }
 function home(){let x=e(),done=state.completed.includes(x.id);return `
