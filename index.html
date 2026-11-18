@@ -1,4 +1,83 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#171916"><title>The Morning Strategist</title><link rel="manifest" href="manifest.json"><style>
-:root{color-scheme:dark;--bg:#171916;--panel:#22251f;--gold:#c9a45c;--paper:#eee8da;--muted:#aaa99f}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--paper);font:16px/1.6 Georgia,serif}header{padding:22px max(6vw,24px);border-bottom:1px solid #45463d;display:flex;justify-content:space-between;align-items:center}.brand,.kicker{font:700 12px Arial,sans-serif;letter-spacing:.2em;color:var(--gold);text-transform:uppercase}main{max-width:940px;margin:8vh auto;padding:0 24px}h1{font-size:clamp(42px,8vw,76px);line-height:1.03;font-weight:400;margin:18px 0}p{color:var(--muted);max-width:680px;font-size:18px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;margin-top:42px}.card{padding:24px;border:1px solid #49483c;background:var(--panel);border-radius:8px}.card h2{font-size:22px;font-weight:400;margin:0 0 8px}.card p{font-size:15px;margin:0}footer{padding:30px max(6vw,24px);color:var(--muted);font:12px Arial,sans-serif}
-</style></head><body><header><div class="brand">The Morning Strategist</div><div class="kicker">History · Strategy · Judgement</div></header><main><div class="kicker">A daily strategic masterclass</div><h1>Think several<br>moves ahead.</h1><p>Develop strategic judgement through the lives, decisions and turning points that shaped history. Each edition connects historical context to enduring principles of leadership, power and decision-making.</p><section class="grid"><article class="card"><h2>Today's Edition</h2><p>Your next historical masterclass will appear here when published.</p></article><article class="card"><h2>The Strategy Gym</h2><p>Test your judgement with dilemmas drawn from real historical decisions.</p></article><article class="card"><h2>The Reading Room</h2><p>Build a library of books, primary sources and carefully selected lectures.</p></article></section></main><footer>THE MORNING STRATEGIST · A personal study in strategy</footer><script>if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js'));</script></body></html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#171916"><meta name="description" content="A daily history and strategic thinking masterclass.">
+<title>The Morning Strategist</title><link rel="manifest" href="manifest.json">
+<style>
+:root{color-scheme:dark;--bg:#171916;--panel:#22251f;--gold:#c9a45c;--paper:#eee8da;--muted:#aaa99f;--line:#49483c}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--paper);font:16px/1.65 Georgia,serif}
+header{padding:22px max(6vw,24px);border-bottom:1px solid #45463d;display:flex;justify-content:space-between;align-items:center;gap:20px}
+.brand,.kicker{font:700 12px Arial,sans-serif;letter-spacing:.2em;color:var(--gold);text-transform:uppercase}
+main{max-width:940px;margin:8vh auto;padding:0 24px}h1{font-size:clamp(42px,8vw,76px);line-height:1.03;font-weight:400;margin:18px 0}
+p{color:var(--muted);max-width:680px;font-size:18px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;margin-top:42px}
+.card{padding:24px;border:1px solid var(--line);background:var(--panel);border-radius:8px}.card h2{font-size:22px;font-weight:400;margin:0 0 8px}.card p{font-size:15px;margin:0}
+.edition{margin-top:38px;padding:clamp(22px,5vw,38px);border:1px solid var(--gold);background:linear-gradient(135deg,#25271f,#1c1e19);border-radius:10px}
+.edition h2{font-size:clamp(28px,5vw,42px);font-weight:400;line-height:1.15;margin:12px 0}
+.meta{font:12px Arial,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--gold)}
+#edition-summary{font-size:17px;max-width:760px}.status{font:13px Arial,sans-serif;color:var(--muted);margin-top:18px}
+.section{border-top:1px solid var(--line);padding-top:18px;margin-top:22px}.section h3{font-size:20px;font-weight:400;margin:0 0 8px}.section p{font-size:16px;margin:0}
+footer{padding:30px max(6vw,24px);color:var(--muted);font:12px Arial,sans-serif}
+@media(max-width:560px){header{align-items:flex-start;flex-direction:column}main{margin:6vh auto}}
+</style></head>
+<body>
+<header><div class="brand">The Morning Strategist</div><div class="kicker">History · Strategy · Judgement</div></header>
+<main>
+<div class="kicker">A daily strategic masterclass</div>
+<h1>Think several<br>moves ahead.</h1>
+<p>Develop strategic judgement through the lives, decisions and turning points that shaped history. Each edition connects historical context to enduring principles of leadership, power and decision-making.</p>
+<section class="edition" aria-live="polite">
+<div class="kicker">The latest masterclass</div>
+<div id="edition-meta" class="meta">DAILY EDITION</div>
+<h2 id="edition-title">Your next lesson is being prepared.</h2>
+<p id="edition-summary">When a lesson is published, it will appear here automatically.</p>
+<div id="edition-sections"></div>
+<div id="edition-status" class="status">Checking for the latest published edition…</div>
+</section>
+<section class="grid">
+<article class="card"><h2>Today's Edition</h2><p>Historical narratives, strategic analysis and lessons in judgement.</p></article>
+<article class="card"><h2>The Strategy Gym</h2><p>Test your judgement with dilemmas drawn from real historical decisions.</p></article>
+<article class="card"><h2>The Reading Room</h2><p>Build a library of books, primary sources and carefully selected lectures.</p></article>
+</section>
+</main>
+<footer>THE MORNING STRATEGIST · A personal study in strategy</footer>
+<script>
+const SUPABASE_URL = 'https://oofmuwankwbqvqksfssk.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_3IgDys9pFnPF5OcknBzyWA_kS7sZqa2';
+const $ = (id) => document.getElementById(id);
+function addSection(title, body) {
+  const section = document.createElement('section'); section.className = 'section';
+  const heading = document.createElement('h3'); heading.textContent = title || 'Section';
+  const paragraph = document.createElement('p'); paragraph.textContent = typeof body === 'string' ? body : JSON.stringify(body);
+  section.append(heading, paragraph); $('edition-sections').append(section);
+}
+async function loadLatestEdition() {
+  try {
+    const endpoint = SUPABASE_URL + '/rest/v1/editions?select=id,edition_date,title,subtitle,period,theme,minutes,content&published_at=not.is.null&order=edition_date.desc&limit=1';
+    const response = await fetch(endpoint, {headers:{apikey:SUPABASE_PUBLISHABLE_KEY,Authorization:'Bearer '+SUPABASE_PUBLISHABLE_KEY}});
+    if (!response.ok) throw new Error('The edition service returned HTTP ' + response.status);
+    const rows = await response.json();
+    if (!rows.length) {
+      $('edition-status').textContent = 'The platform is connected. No edition has been published yet.';
+      return;
+    }
+    const edition = rows[0], content = edition.content || {};
+    $('edition-title').textContent = edition.title || 'Untitled edition';
+    $('edition-meta').textContent = [edition.edition_date, edition.period, edition.theme, edition.minutes ? edition.minutes + ' MIN' : null].filter(Boolean).join(' · ');
+    $('edition-summary').textContent = edition.subtitle || content.summary || content.introduction || 'Open today’s masterclass.';
+    $('edition-sections').replaceChildren();
+    if (Array.isArray(content.sections)) {
+      content.sections.forEach(item => addSection(item.title, item.body || item.content || ''));
+    } else if (typeof content === 'object') {
+      Object.entries(content).filter(([key,value]) => !['summary','introduction'].includes(key) && typeof value === 'string').slice(0,8).forEach(([key,value]) => addSection(key.replace(/_/g,' '),value));
+    }
+    $('edition-status').textContent = 'Latest published edition · Connected to the Morning Strategist library';
+  } catch (error) {
+    $('edition-status').textContent = 'Could not load the latest edition. Please try again later.';
+    console.error('Morning Strategist edition load:', error);
+  }
+}
+loadLatestEdition();
+if ('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js'));
+</script>
+</body></html>
