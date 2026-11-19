@@ -182,3 +182,15 @@ main{padding:clamp(22px,4.2vw,62px);max-width:1220px;margin:0 auto;width:100%}
  .atlas-map-heading{font-size:18px}
  .atlas-tabs button{flex:1;padding:11px 8px;font-size:8px}
 }
+
+/* Historical story: visual evidence and strategic interpretation woven into the narrative */
+.chapter-figure{margin:30px 0 34px;padding:0 0 17px;border-bottom:1px solid var(--academy-line)}
+.chapter-figure img{display:block;width:100%;max-height:520px;object-fit:cover;background:#171a19;border:1px solid var(--academy-line)}
+.chapter-map img{object-fit:contain;background:#202a25;max-height:470px}
+.chapter-visual-kicker{font:750 9px/1.4 var(--sans);letter-spacing:.17em;color:var(--academy-gold);margin:0 0 10px}
+.chapter-figure figcaption{font:12px/1.65 var(--sans);color:var(--academy-muted);margin-top:10px}
+.visual-insight,.in-story-insight{margin:15px 0 4px;padding:15px 18px;background:rgba(183,154,98,.075);border-left:2px solid var(--academy-gold)}
+.visual-insight strong,.in-story-insight-label{font:750 9px/1.4 var(--sans);letter-spacing:.15em;color:var(--academy-gold)}
+.visual-insight p,.in-story-insight p{font:14px/1.7 var(--sans);color:#d6cbb7;margin:7px 0 0}
+.in-story-insight{margin:24px 0 30px;padding:18px 20px}
+@media(max-width:560px){.chapter-figure{margin:24px 0 28px}.chapter-figure img{max-height:380px}.visual-insight,.in-story-insight{padding:13px 14px}}
