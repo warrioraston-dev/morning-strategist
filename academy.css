@@ -140,3 +140,5 @@ main{padding:clamp(22px,4.2vw,62px);max-width:1220px;margin:0 auto;width:100%}
  .command-commit-row .primary{width:100%}
  .deep-dive-content{padding-left:13px;padding-right:13px}
 }
+
+.map-city.active-node circle,.map-origin.active-node circle{fill:#f0d99e;stroke:#fff0c9;stroke-width:3;filter:drop-shadow(0 0 7px rgba(224,199,142,.65))}
