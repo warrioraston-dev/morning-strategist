@@ -70,3 +70,73 @@ main{padding:clamp(22px,4.2vw,62px);max-width:1220px;margin:0 auto;width:100%}
 .article a,.panel a{color:var(--academy-gold2)}
 .footer{border-color:var(--academy-line);letter-spacing:.15em}
 @media(max-width:560px){.panel{padding:17px}.lesson-card img{height:170px}.article p{font-size:16px}}
+
+
+/* Layered reading: keep the narrative inviting, with depth one deliberate tap away. */
+.deep-dive{margin:20px 0 28px;border:1px solid var(--academy-line);background:rgba(29,33,31,.7)}
+.deep-dive summary{list-style:none;cursor:pointer;padding:15px 17px;color:var(--academy-gold2);font-size:9px;font-weight:750;letter-spacing:.13em;text-transform:uppercase}
+.deep-dive summary::-webkit-details-marker{display:none}
+.deep-dive summary:before{content:"＋";font-size:14px;margin-right:10px;color:var(--academy-gold)}
+.deep-dive[open] summary:before{content:"−"}
+.deep-dive summary span{display:block;margin:6px 0 0 25px;color:var(--academy-muted);font-size:9px;font-weight:400;letter-spacing:.05em;text-transform:none}
+.deep-dive-content{padding:4px 18px 12px;border-top:1px solid var(--academy-line)}
+.deep-dive-content p{font-size:15px;line-height:1.85}
+
+/* Strategic command room: an illustrated operational map, not a quiz form. */
+.command-sim{margin:48px 0 42px;padding:clamp(18px,3vw,30px);background:linear-gradient(145deg,#202723,#191e1c);border:1px solid rgba(183,154,98,.36)}
+.command-heading{display:flex;justify-content:space-between;align-items:flex-end;gap:18px;flex-wrap:wrap}
+.command-heading h2{font:clamp(29px,4vw,39px)/1.12 Georgia,serif;font-weight:400;margin:10px 0 0;color:var(--academy-paper)}
+.command-location{font-size:8px;letter-spacing:.14em;color:var(--academy-gold2);border:1px solid var(--academy-line);padding:8px 10px}
+.command-brief{font:16px/1.8 Georgia,serif;color:#d1c8b8;margin:18px 0 22px}
+.command-intel-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:20px 0 24px}
+.intel-note{padding:13px 15px;background:#171c19;border-left:1px solid var(--academy-gold)}
+.intel-note span,.command-options-label,.debrief-corrective>span,.debrief-history>span{font-size:8px;letter-spacing:.14em;color:var(--academy-gold);font-weight:750}
+.intel-note p{font:13px/1.6 var(--sans);color:#c5bcac;margin:7px 0 0}
+.command-map-wrap{border:1px solid var(--academy-line);background:#171d1a;padding:13px}
+.command-map-title{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:8px;letter-spacing:.12em;color:var(--academy-muted);padding:4px 3px 12px}
+.command-map{position:relative;overflow:hidden;background:radial-gradient(ellipse at 60% 45%,rgba(105,127,108,.2),transparent 62%),linear-gradient(135deg,#26312b,#1b2420);aspect-ratio:760/390}
+.command-map svg{display:block;width:100%;height:100%}
+.command-map .route{fill:none;stroke:#b79a62;stroke-width:4;stroke-dasharray:8 10;opacity:.16;stroke-linecap:round;transition:opacity .25s,stroke-width .25s}
+.command-map .route.active{opacity:1;stroke:#e0c78e;stroke-width:6;stroke-dasharray:0;filter:drop-shadow(0 0 5px rgba(224,199,142,.45))}
+.map-city circle{fill:#d8c49a;stroke:#171a19;stroke-width:4}
+.map-city text,.map-origin text{font:11px Arial,sans-serif;letter-spacing:1.5px;fill:#e5dac4}
+.map-origin circle{fill:#b79a62;stroke:#eee8da;stroke-width:2}
+.map-region{font:10px Arial,sans-serif;letter-spacing:2px;fill:rgba(226,215,190,.42)}
+.map-compass{position:absolute;right:14px;top:12px;color:#d5bd8d;font:12px Georgia,serif}
+.map-legend{display:flex;gap:18px;flex-wrap:wrap;padding:12px 3px 2px;font-size:9px;color:var(--academy-muted);letter-spacing:.05em}
+.map-legend i{display:inline-block;width:7px;height:7px;border-radius:50%;background:#d8c49a;margin-right:6px}
+.map-legend .legend-line{width:18px;height:2px;border-radius:0;background:#d5bd8d;vertical-align:middle}
+.map-legend .legend-origin{background:#b79a62}
+.command-options{margin:24px 0 14px}
+.command-options-label{margin-bottom:10px}
+.command-option{width:100%;display:grid;grid-template-columns:36px minmax(0,1fr) 22px;gap:12px;align-items:center;text-align:left;padding:15px 13px;margin:7px 0;background:#1a211d;border:1px solid var(--academy-line);color:var(--academy-paper);transition:border-color .2s,background .2s}
+.command-option:hover,.command-option.selected{border-color:var(--academy-gold);background:#2a302a}
+.option-number{font:19px Georgia,serif;color:var(--academy-gold2)}
+.option-copy strong{display:block;font:19px Georgia,serif;font-weight:400}
+.option-copy small{display:block;margin-top:5px;color:var(--academy-muted);font-size:11px;line-height:1.55}
+.option-arrow{font-size:16px;color:var(--academy-gold2);text-align:right}
+.command-commit-row{display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap;margin-top:17px;padding-top:15px;border-top:1px solid var(--academy-line)}
+.command-commit-row>span{font-size:8px;letter-spacing:.13em;color:var(--academy-muted)}
+.command-commit-row button:disabled{opacity:.35;cursor:not-allowed}
+.command-debrief{margin-top:24px;padding:21px;background:#1a211d;border:1px solid var(--academy-line)}
+.command-debrief.is-sound{border-left:3px solid #9aaf8d}
+.command-debrief.is-flawed{border-left:3px solid #b98a65}
+.debrief-verdict{font-size:9px;letter-spacing:.16em;color:var(--academy-gold2);font-weight:800}
+.command-debrief h3{font:26px Georgia,serif;font-weight:400;margin:10px 0}
+.command-debrief>p,.debrief-corrective p,.debrief-history p{font:14px/1.75 Georgia,serif;color:#d0c7b7}
+.debrief-corrective,.debrief-history{margin-top:17px;padding-top:14px;border-top:1px solid var(--academy-line)}
+.debrief-corrective p,.debrief-history p{margin:8px 0 0}
+.command-debrief .debrief-close{color:var(--academy-muted);font:italic 13px/1.65 Georgia,serif;margin:18px 0 0}
+.command-footnote{margin-top:15px;color:#8f897d;font:10px/1.6 var(--sans)}
+@media(max-width:600px){
+ .command-sim{padding:16px 12px;margin:34px 0}
+ .command-intel-grid{grid-template-columns:1fr}
+ .command-map-title{font-size:7px}
+ .map-city text,.map-origin text{font-size:9px}
+ .map-region{font-size:8px}
+ .command-option{grid-template-columns:28px minmax(0,1fr) 18px;padding:13px 10px}
+ .option-copy strong{font-size:17px}
+ .option-copy small{font-size:10px}
+ .command-commit-row .primary{width:100%}
+ .deep-dive-content{padding-left:13px;padding-right:13px}
+}
