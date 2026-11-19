@@ -1,14 +1,59 @@
-const CACHE='morning-strategist-v2';
-const ASSETS=['./','./index.html','./manifest.json','./icon.svg'];
-self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting())));
-self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
-self.addEventListener('fetch',e=>{
- if(e.request.method!=='GET')return;
- const url=new URL(e.request.url);
- const isPage=e.request.mode==='navigate'||url.pathname.endsWith('/index.html')||url.pathname.endsWith('/');
- if(isPage){
-  e.respondWith(fetch(e.request).then(res=>{const copy=res.clone();caches.open(CACHE).then(c=>c.put(e.request,copy));return res;}).catch(()=>caches.match(e.request).then(r=>r||caches.match('./index.html'))));
-  return;
- }
- e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).then(res=>{const copy=res.clone();caches.open(CACHE).then(c=>c.put(e.request,copy));return res;})));
+const CACHE='morning-strategist-v3';
+const ASSETS=['./','./index.html','./academy.css','./manifest.json','./icon.svg'];
+
+self.addEventListener('install',event=>{
+  event.waitUntil(
+    caches.open(CACHE)
+      .then(cache=>cache.addAll(ASSETS))
+      .then(()=>self.skipWaiting())
+  );
+});
+
+self.addEventListener('activate',event=>{
+  event.waitUntil(
+    caches.keys()
+      .then(keys=>Promise.all(
+        keys.filter(key=>key.startsWith('morning-strategist-')&&key!==CACHE)
+          .map(key=>caches.delete(key))
+      ))
+      .then(()=>self.clients.claim())
+  );
+});
+
+self.addEventListener('fetch',event=>{
+  const request=event.request;
+  if(request.method!=='GET')return;
+
+  const url=new URL(request.url);
+  // Never cache cross-origin requests: this includes live Supabase edition data.
+  if(url.origin!==self.location.origin)return;
+
+  const isPage=request.mode==='navigate'||url.pathname.endsWith('/index.html')||url.pathname.endsWith('/');
+  if(isPage){
+    event.respondWith(
+      fetch(request)
+        .then(response=>{
+          if(response.ok){
+            const copy=response.clone();
+            caches.open(CACHE).then(cache=>cache.put(request,copy));
+          }
+          return response;
+        })
+        .catch(()=>caches.match(request).then(cached=>cached||caches.match('./index.html')))
+    );
+    return;
+  }
+
+  event.respondWith(
+    caches.match(request).then(cached=>{
+      if(cached)return cached;
+      return fetch(request).then(response=>{
+        if(response.ok){
+          const copy=response.clone();
+          caches.open(CACHE).then(cache=>cache.put(request,copy));
+        }
+        return response;
+      });
+    })
+  );
 });
