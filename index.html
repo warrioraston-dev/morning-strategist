@@ -157,7 +157,9 @@ function splitReadingChunks(value){
 function renderChapterStory(section,edition){
  const chunks=splitReadingChunks(section.body||section.text||"");
  const heading=String(section.heading||section.title||"");
- const attached=[...(section.visuals||[]),...(edition.visuals||[]).filter(v=>String(v.chapterHeading||v.chapter||"").toLowerCase()===heading.toLowerCase())];
+ const explicitlyPlaced=(edition.sections||edition.chapters||[]).some(s=>s.visuals?.length);
+ const globalVisuals=edition.visuals||[];
+ const attached=[...(section.visuals||[]),...globalVisuals.filter(v=>String(v.chapterHeading||v.chapter||"").toLowerCase()===heading.toLowerCase()),...(!explicitlyPlaced&&/HISTORICAL STORY/i.test(heading)?globalVisuals.filter(v=>!v.chapterHeading&&!v.chapter):[])];
  const safeVisuals=attached.filter(v=>v&&v.url&&/^https:\/\//i.test(v.url));
  const at={};
  safeVisuals.forEach((v,i)=>{let n=Number(v.afterParagraph);if(!Number.isFinite(n)||n<1)n=Math.max(1,Math.round((i+1)*chunks.length/(safeVisuals.length+1)));n=Math.min(Math.max(1,n),Math.max(1,chunks.length));(at[n]||(at[n]=[])).push(v);});
@@ -196,7 +198,7 @@ function lesson(){
  const chapterBody=sections.map((section,i)=>{
   const heading=section.heading||section.title||"Chapter";
   const body=renderChapterStory(section,x);
-  const archive=i===visualSectionIndex?visualMarkup:"";
+  const archive=i===visualSectionIndex&&!distributeGlobalVisuals?visualMarkup:"";
   return `<section class="reading-chapter" id="chapter-${i+1}"><div class="chapter-overline">CHAPTER ${String(i+1).padStart(2,"0")}</div><h2>${esc(heading)}</h2>${body}${archive}</section>`;
  }).join("")+(visualSectionIndex<0?visualMarkup:"");
  return `
