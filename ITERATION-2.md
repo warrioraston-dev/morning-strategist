@@ -13,6 +13,13 @@ Iteration 2 develops the existing app into a premium historical reading and stra
 - Command simulations are data-driven through `commandSimulation`, including map nodes, routes, three operational options and explanatory debriefs. The current Khwarazm campaign scenario is the first pilot.
 - Existing edition fields and the legacy `sections` format remain supported.
 - Edition date comparison and header date use the `Europe/Zurich` calendar.
+- Library search now indexes titles, themes, summaries and chapter headings; edition cards are safely rendered and show last-read progress.
+- Reader adds automatic chapter progress, a resume point on Today, adjustable text size and reading width, and a persistent expand/collapse control for deeper passages.
+- Recent published editions are cached locally for offline reading; Supabase remains the live source when online. Service worker cache is versioned and static assets use network-first with offline fallback.
+- Backup/restore now preserves notes, bookmarks, completion, reading progress and reader preferences as well as edition content.
+- PWA installation has a visible install action with Android manual-install guidance when the browser does not provide its native prompt.
+- Strategic Atlas now contains two interactive theatre tabs: the Khwarazm campaign and Trafalgar, with explanatory operational diagrams explicitly labelled schematic and not to scale.
+- Strategy Gym includes command simulations for both the current Khwarazm edition and the legacy Nelson edition; future editions are instructed to publish their own `commandSimulation` data.
 - Existing Library, Strategic Atlas, Strategy Gym, Journal, Supabase sync, and local persistence functions are retained.
 
 ### Safety and release approach
@@ -22,14 +29,14 @@ Iteration 2 develops the existing app into a premium historical reading and stra
 - The app continues to use the existing public published-editions read path.
 - Merge only after visual testing on Android and desktop, a Supabase sync check, and a service-worker update/offline check.
 
-### Next implementation stages
+### Release-candidate verification still required
 
-1. Test the new Today and masterclass screens with the published Nelson edition.
-2. Improve chapter progress, reading preferences, and image captions/credits while preserving the existing edition format.
-3. Test the Khwarazm command simulation on Android and desktop, including each route selection and its debrief.
-4. Improve Library discovery and add the first real Strategic Atlas map.
-5. Validate PWA cache updates and daily edition date handling end-to-end.
+1. Test the Today page, layered reader, reader controls and resume position on Android and desktop.
+2. Exercise all three choices in both the Khwarazm and Trafalgar command rooms and inspect the debriefs.
+3. Confirm live Supabase sync and offline fallback on a real device.
+4. Confirm Android installation from Chrome and service-worker update behavior.
+5. Verify the next scheduled edition at 07:00 Europe/Zurich and confirm its correct edition date and `commandSimulation` payload.
 
 ### Known scope boundary
 
-The current Atlas map is still a schematic placeholder. This release does not claim to add a georeferenced interactive map or change the daily publishing schedule. Those require separate, testable work.
+The Atlas and command-room diagrams are explanatory schematics, not georeferenced navigation charts or exact unit-by-unit reconstructions. Notes, bookmarks, completion and reading progress are stored on the device; the cloud currently supplies published editions only. No Supabase schema, RLS, credentials, or publication schedule changes are part of this release candidate. Production `main` remains untouched until the user explicitly approves release.
