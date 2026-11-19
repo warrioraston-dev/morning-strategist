@@ -165,12 +165,14 @@ function renderChapterStory(section,edition){
  const attached=[...(section.visuals||[]),...globalVisuals.filter(v=>String(v.chapterHeading||v.chapter||"").toLowerCase()===heading.toLowerCase()),...(!explicitlyPlaced&&/HISTORICAL STORY/i.test(heading)?globalVisuals.filter(v=>!v.chapterHeading&&!v.chapter):[])];
  const safeVisuals=attached.filter(v=>v&&((v.url&&/^https:\/\//i.test(v.url))||isStrategicDiagram(v)));
  const at={};
- safeVisuals.forEach((v,i)=>{let n=Number(v.afterParagraph);if(!Number.isFinite(n)||n<1)n=Math.max(1,Math.round((i+1)*chunks.length/(safeVisuals.length+1)));n=Math.min(Math.max(1,n),Math.max(1,chunks.length));(at[n]||(at[n]=[])).push(v);});
- const renderRange=(from,to)=>{let out="";for(let i=from;i<to;i++){out+=renderReadingParagraphs(chunks[i]);(at[i+1]||[]).forEach(v=>{out+=renderInlineHistoricalVisual(v,/map|campaign|battlefield|route|terrain|attack|movement|formation|siege/i.test(String(v.type||v.diagramKind||v.caption||v.alt||"")));});}return out;};
+ safeVisuals.forEach((v,i)=>{let n=Number(v.afterParagraph);if(!Number.isFinite(n)||n<1)n=Math.max(1,Math.round((i+1)*chunks.length/(safeVisuals.length+1)));n=Math.min(Math.max(1,n),Math.max(1,chunks.length));(at[n]||(at[n]=[])).push({kind:"visual",value:v});});
+ (section.insights||section.strategicInsights||[]).filter(v=>v&&v.text).forEach(v=>{const n=Math.min(Math.max(1,Number(v.afterParagraph)||1),Math.max(1,chunks.length));(at[n]||(at[n]=[])).push({kind:"insight",value:v});});
+ const renderInsight=v=>'<aside class="in-story-insight"><div class="in-story-insight-label">'+esc(v.label||"THE STRATEGIST’S LENS")+'</div><p>'+esc(v.text)+'</p></aside>';
+ const renderRange=(from,to)=>{let out="";for(let i=from;i<to;i++){out+=renderReadingParagraphs(chunks[i]);(at[i+1]||[]).forEach(item=>{out+=item.kind==="insight"?renderInsight(item.value):renderInlineHistoricalVisual(item.value,/map|campaign|battlefield|route|terrain|attack|movement|formation|siege/i.test(String(item.value.type||item.value.diagramKind||item.value.caption||item.value.alt||"")));});}return out;};
  let out=renderRange(0,Math.min(2,chunks.length));
  if(chunks.length>2){const deeper=renderRange(2,chunks.length),words=chunks.slice(2).join(" ").split(/\s+/).filter(Boolean).length;out+='<details class="deep-dive"><summary>Explore this chapter in depth <span>'+words+' additional words</span></summary><div class="deep-dive-content">'+deeper+'</div></details>';}
  if(!chunks.length)safeVisuals.forEach(v=>{out+=renderInlineHistoricalVisual(v,/map|campaign|battlefield|route/i.test(String(v.type||"")));});
- if(section.strategicInsight||section.mapInsight){out+='<aside class="in-story-insight"><div class="in-story-insight-label">READ THE STRATEGIC PICTURE</div><p>'+esc(section.strategicInsight||section.mapInsight)+'</p></aside>';}
+ if((section.strategicInsight||section.mapInsight)&&!(section.insights||section.strategicInsights||[]).length){out+='<aside class="in-story-insight"><div class="in-story-insight-label">READ THE STRATEGIC PICTURE</div><p>'+esc(section.strategicInsight||section.mapInsight)+'</p></aside>';}
  return out;
 }
 function isStrategicDiagram(v){return !!(v&&(v.diagramKind||/^(terrain-profile|operational-map|attack-sequence|movement-diagram|formation-map|supply-route|siege-layout)$/i.test(String(v.type||""))));}
