@@ -69,7 +69,7 @@ const editions = [{
  principle:"Concentrate strength at the decisive point. A force that is stronger everywhere in theory may be weaker at the point and moment that matter.",
  modern:"In business, a smaller team can challenge an incumbent by focusing resources on one neglected customer need or bottleneck—provided it understands the risk of the concentrated move."
 }];
-let state={page:"home",edition:0,completed:JSON.parse(localStorage.getItem("ms_completed")||"[]"),bookmarks:JSON.parse(localStorage.getItem("ms_bookmarks")||"[]"),notes:JSON.parse(localStorage.getItem("ms_notes")||"{}"),decision:null,showAnswer:false,timeline:0,commandChoice:null,commandRevealed:false};
+let state={page:"home",edition:0,completed:JSON.parse(localStorage.getItem("ms_completed")||"[]"),bookmarks:JSON.parse(localStorage.getItem("ms_bookmarks")||"[]"),notes:JSON.parse(localStorage.getItem("ms_notes")||"{}"),readingProgress:JSON.parse(localStorage.getItem("ms_reading_progress")||"{}"),readingLarge:localStorage.getItem("ms_reading_large")==="1",readingWide:localStorage.getItem("ms_reading_wide")==="1",atlasTheatre:"khwarazm",decision:null,showAnswer:false,timeline:0,commandChoice:null,commandRevealed:false};
 const app=document.getElementById("app");
 const e=()=>editions[state.edition];
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -79,29 +79,25 @@ document.querySelectorAll("[data-page]").forEach(b=>b.addEventListener("click",(
 function render(){
  const pages={home:home,lesson:lesson,library:library,atlas:atlas,gym:gym,journal:journal};
  app.innerHTML=(pages[state.page]||home)();
+ if(state.page==="lesson")initReadingProgress();
 }
+function restoreEditionCache(){
+ try{const cached=JSON.parse(localStorage.getItem("ms_editions_cache")||"[]");if(Array.isArray(cached))cached.forEach(lesson=>{if(!lesson||!lesson.id||!lesson.title)return;const i=editions.findIndex(x=>String(x.id)===String(lesson.id));if(i>=0)editions[i]=lesson;else editions.push(lesson);});editions.sort((x,y)=>Date.parse(y.date||"")-Date.parse(x.date||""));state.edition=0;}catch(err){console.warn("Could not restore saved editions",err);}
+}
+restoreEditionCache();
 async function syncPublishedEditions(){
- const label=document.getElementById("streakLabel");
+ const label=document.getElementById("streakLabel"),activeId=e().id;
  try{
-  const res=await fetch(`${SUPABASE_URL}/rest/v1/editions?select=id,edition_date,title,content,published_at&published_at=not.is.null&order=published_at.desc`,{headers:{apikey:SUPABASE_PUBLISHABLE_KEY},cache:"no-store"});
-  if(!res.ok)throw new Error(`HTTP ${res.status}`);
-  const rows=await res.json();
-  let added=0;
-  for(const row of rows){
-   if(!row.content||!row.content.id||!row.content.title)continue;
-   const lesson={...row.content,id:String(row.content.id),date:row.edition_date||row.content.date||"",image:row.content.image||row.content.image_url||""};
-   const at=editions.findIndex(x=>String(x.id)===String(lesson.id));
-   if(at>=0)editions[at]=lesson;else{editions.push(lesson);added++;}
-  }
-  editions.sort((a,b)=>Date.parse(b.date||"")-Date.parse(a.date||""));
-  state.edition=0;
-  label.textContent=`SYNCED · ${rows.length} EDITION${rows.length===1?"":"S"}`;
-  label.title="Published editions are syncing from the Morning Strategist cloud library.";
-  if(added&&state.page!="lesson")render();
- }catch(err){
-  label.textContent="OFFLINE / LOCAL";
-  label.title=`Cloud sync failed: ${err.message}. The bundled edition remains available.`;
- }
+  const res=await fetch(SUPABASE_URL+"/rest/v1/editions?select=id,edition_date,title,content,published_at&published_at=not.is.null&order=published_at.desc",{headers:{apikey:SUPABASE_PUBLISHABLE_KEY},cache:"no-store"});
+  if(!res.ok)throw new Error("HTTP "+res.status);
+  const rows=await res.json();let changed=false;
+  for(const row of rows){if(!row.content||!row.content.id||!row.content.title)continue;const lesson=Object.assign({},row.content,{id:String(row.content.id),date:row.edition_date||row.content.date||"",image:row.content.image||row.content.image_url||""});const at=editions.findIndex(x=>String(x.id)===String(lesson.id));if(at>=0){if(JSON.stringify(editions[at])!==JSON.stringify(lesson))changed=true;editions[at]=lesson;}else{editions.push(lesson);changed=true;}}
+  editions.sort((x,y)=>Date.parse(y.date||"")-Date.parse(x.date||""));
+  state.edition=state.page==="lesson"?Math.max(0,editions.findIndex(x=>String(x.id)===String(activeId))):0;
+  try{localStorage.setItem("ms_editions_cache",JSON.stringify(editions.slice(0,20)));}catch(cacheError){console.warn("Edition cache full",cacheError);}
+  label.textContent="SYNCED · "+rows.length+" EDITION"+(rows.length===1?"":"S");label.title="Published editions synced. Recent editions are saved on this device for offline reading.";
+  if(changed&&state.page!=="lesson")render();
+ }catch(err){label.textContent="OFFLINE / SAVED LIBRARY";label.title="Cloud sync unavailable ("+err.message+"). Showing editions last saved on this device.";}
 }
 function home(){
  const x=e(),done=state.completed.includes(x.id);
