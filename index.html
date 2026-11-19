@@ -82,17 +82,17 @@ function render(){
 async function syncPublishedEditions(){
  const label=document.getElementById("streakLabel");
  try{
-  const res=await fetch(`${SUPABASE_URL}/rest/v1/editions?select=id,title,content,published_at&published_at=not.is.null&order=published_at.desc`,{headers:{apikey:SUPABASE_PUBLISHABLE_KEY},cache:"no-store"});
+  const res=await fetch(`${SUPABASE_URL}/rest/v1/editions?select=id,edition_date,title,content,published_at&published_at=not.is.null&order=published_at.desc`,{headers:{apikey:SUPABASE_PUBLISHABLE_KEY},cache:"no-store"});
   if(!res.ok)throw new Error(`HTTP ${res.status}`);
   const rows=await res.json();
   let added=0;
   for(const row of rows){
    if(!row.content||!row.content.id||!row.content.title)continue;
-   const lesson={...row.content,id:String(row.content.id),image:row.content.image||row.content.image_url||""};
+   const lesson={...row.content,id:String(row.content.id),date:row.edition_date||row.content.date||"",image:row.content.image||row.content.image_url||""};
    const at=editions.findIndex(x=>String(x.id)===String(lesson.id));
    if(at>=0)editions[at]=lesson;else{editions.push(lesson);added++;}
   }
-  if(state.edition>=editions.length)state.edition=0;
+  editions.sort((a,b)=>Date.parse(b.date||"")-Date.parse(a.date||""));\n  state.edition=0;
   label.textContent=`SYNCED · ${rows.length} EDITION${rows.length===1?"":"S"}`;
   label.title="Published editions are syncing from the Morning Strategist cloud library.";
   if(added&&state.page!="lesson")render();
