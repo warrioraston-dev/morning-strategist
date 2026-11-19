@@ -154,6 +154,23 @@ function splitReadingChunks(value){
  blocks.forEach(block=>{if(block.split(/\s+/).length<=105){chunks.push(block);return;}const sentences=block.match(/[^.!?]+[.!?]+["'”’)]*|[^.!?]+$/g)||[block];let group="",count=0;sentences.forEach(sentence=>{const next=(group+" "+sentence).trim();if(group&&(count>=3||next.split(/\s+/).length>105)){chunks.push(group.trim());group=sentence.trim();count=1;}else{group=next;count++;}});if(group)chunks.push(group.trim());});
  return chunks;
 }
+function renderChapterStory(section,edition){
+ const chunks=splitReadingChunks(section.body||section.text||"");
+ const heading=String(section.heading||section.title||"");
+ const attached=[...(section.visuals||[]),...(edition.visuals||[]).filter(v=>String(v.chapterHeading||v.chapter||"").toLowerCase()===heading.toLowerCase())];
+ const safeVisuals=attached.filter(v=>v&&v.url&&/^https:\/\//i.test(v.url));
+ const at={};
+ safeVisuals.forEach((v,i)=>{let n=Number(v.afterParagraph);if(!Number.isFinite(n)||n<1)n=Math.max(1,Math.round((i+1)*chunks.length/(safeVisuals.length+1)));n=Math.min(Math.max(1,n),Math.max(1,chunks.length));(at[n]||(at[n]=[])).push(v);});
+ let out="";
+ chunks.forEach((chunk,i)=>{out+=renderReadingParagraphs(chunk);(at[i+1]||[]).forEach(v=>{const isMap=/map|campaign|battlefield|route/i.test(String(v.type||""));out+=renderInlineHistoricalVisual(v,isMap);});});
+ if(!chunks.length)safeVisuals.forEach(v=>{out+=renderInlineHistoricalVisual(v,/map/i.test(String(v.type||"")));});
+ if(section.strategicInsight||section.mapInsight){out+='<aside class="in-story-insight"><div class="in-story-insight-label">READ THE STRATEGIC PICTURE</div><p>'+esc(section.strategicInsight||section.mapInsight)+'</p></aside>';}
+ return out;
+}
+function renderInlineHistoricalVisual(v,isMap){
+ const map=isMap||/map|campaign|battlefield|route/i.test(String(v.type||""));
+ return '<figure class="chapter-figure '+(map?'chapter-map':'chapter-image')+'"><div class="chapter-visual-kicker">'+(map?'THEATRE MAP':'HISTORICAL VISUAL')+'</div><img src="'+esc(v.url)+'" alt="'+esc(v.alt||v.caption|| (map?'Historical campaign map':'Historical image'))+'" loading="lazy"><figcaption>'+esc(v.caption||"")+'</figcaption>'+(v.strategicInsight?'<aside class="visual-insight"><strong>WHY THIS MATTERS</strong><p>'+esc(v.strategicInsight)+'</p></aside>':"")+'</figure>';
+}
 function renderReadingParagraphs(value){return splitReadingChunks(value).map(part=>"<p>"+esc(part).replace(/\n/g,"<br>")+"</p>").join("");}
 function renderLayeredText(value,label){const chunks=splitReadingChunks(value);if(chunks.length<=2)return renderReadingParagraphs(value);const visible=chunks.slice(0,2).join("\n\n"),deeper=chunks.slice(2),words=deeper.join(" ").split(/\s+/).filter(Boolean).length;return renderReadingParagraphs(visible)+"<details class=\"deep-dive\"><summary>"+esc(label||"Explore this chapter in depth")+" <span>"+words+" additional words</span></summary><div class=\"deep-dive-content\">"+renderReadingParagraphs(deeper.join("\n\n"))+"</div></details>";}
 function toggleDeepReading(button){const items=[...document.querySelectorAll(".deep-dive")],expand=items.some(item=>!item.open);items.forEach(item=>item.open=expand);button.textContent=expand?"COLLAPSE DEEPER READING":"EXPAND ALL DEEPER READING";}
@@ -178,10 +195,9 @@ function lesson(){
  const visualMarkup=renderVisuals(x);
  const chapterBody=sections.map((section,i)=>{
   const heading=section.heading||section.title||"Chapter";
-  const body=renderLayeredText(section.body||section.text||"","Explore this chapter in depth");
-  const inlineVisuals=section.visuals?.length?section.visuals.map(v=>`<figure class="chapter-figure"><img src="${esc(v.url)}" alt="${esc(v.alt||v.caption||"Historical image")}"><figcaption>${esc(v.caption||"")}</figcaption></figure>`).join(""):"";
+  const body=renderChapterStory(section,x);
   const archive=i===visualSectionIndex?visualMarkup:"";
-  return `<section class="reading-chapter" id="chapter-${i+1}"><div class="chapter-overline">CHAPTER ${String(i+1).padStart(2,"0")}</div><h2>${esc(heading)}</h2>${body}${inlineVisuals}${archive}</section>`;
+  return `<section class="reading-chapter" id="chapter-${i+1}"><div class="chapter-overline">CHAPTER ${String(i+1).padStart(2,"0")}</div><h2>${esc(heading)}</h2>${body}${archive}</section>`;
  }).join("")+(visualSectionIndex<0?visualMarkup:"");
  return `
  <div class="reading-topline"><button class="back-link" onclick="go('home')">← THE ACADEMY</button><span>EDITION ${esc(x.id)} · ${esc(x.period)}</span><span>${esc(x.minutes||15)} MIN READ</span></div>
