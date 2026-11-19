@@ -143,7 +143,7 @@ function editionSections(x){
  return list.filter(section=>!/^CURRICULUM RECORD$/i.test(String(section.heading||section.title||"").trim()));
 }
 function renderReadingParagraphs(value){
- return String(value||"").split(/\\n\\s*\\n/).map(part=>part.trim()).filter(Boolean).map(part=>`<p>${esc(part).replace(/\\n/g,"<br>")}</p>`).join("");
+ return String(value||"").split(/\n\s*\n/).map(part=>part.trim()).filter(Boolean).map(part=>`<p>${esc(part).replace(/\n/g,"<br>")}</p>`).join("");
 }
 function lesson(){
  const x=e(),done=state.completed.includes(x.id);
