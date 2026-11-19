@@ -75,6 +75,7 @@ const e=()=>editions[state.edition];
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 function toast(t){let el=document.getElementById("toast");el.textContent=t;el.classList.remove("hide");setTimeout(()=>el.classList.add("hide"),2100)}
 function go(page){state.page=page;document.querySelectorAll("[data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===page));render();window.scrollTo(0,0)}
+function continueLesson(){state.page="lesson";document.querySelectorAll("[data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page==="home"));render();const idx=Math.max(0,Number(state.readingProgress[e().id]||0));setTimeout(()=>document.getElementById("chapter-"+(idx+1))?.scrollIntoView({behavior:"smooth",block:"start"}),80);}
 document.querySelectorAll("[data-page]").forEach(b=>b.addEventListener("click",()=>go(b.dataset.page)));
 function render(){
  const pages={home:home,lesson:lesson,library:library,atlas:atlas,gym:gym,journal:journal};
@@ -115,7 +116,7 @@ function home(){
    <h1>${esc(x.title||"The Morning Strategist")}</h1>
    <p class="hero-deck">${esc(x.subtitle||"A daily study of history, power and strategic judgement.")}</p>
    <div class="hero-byline"><span>${esc(dateLabel)}</span><span>${esc(x.minutes||15)} MIN READ</span><span>${sections.length||1} CHAPTERS</span></div>
-   <div class="hero-actions"><button class="primary" onclick="go('lesson')">${done?"CONTINUE READING":"READ THE MASTERCLASS"} <b>→</b></button><button class="hero-save" onclick="toggleBookmark('${esc(x.id)}')">${state.bookmarks.includes(x.id)?"★ SAVED":"☆ SAVE EDITION"}</button></div>
+   <div class="hero-actions"><button class="primary" onclick="${state.readingProgress[x.id]!==undefined&&!done?"continueLesson()":"go('lesson')"}">${state.readingProgress[x.id]!==undefined&&!done?"CONTINUE FROM CHAPTER "+(Number(state.readingProgress[x.id])+1):done?"REVISIT MASTERCLASS":"READ THE MASTERCLASS"} <b>→</b></button><button class="hero-save" onclick="toggleBookmark('${esc(x.id)}')">${state.bookmarks.includes(x.id)?"★ SAVED":"☆ SAVE EDITION"}</button></div>
   </div>
  </section>
  <div class="home-intro-grid">
