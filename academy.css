@@ -1,6 +1,6 @@
 /* Iteration 2 — The Editorial Academy
    Layered over the original app styles to preserve existing learning tools and data. */
-:root{--academy-paper:#eee8da;--academy-muted:#aaa18f;--academy-gold:#b79a62;--academy-line:rgba(215,196,155,.2)}
+:root{--academy-paper:#eee8da;--academy-gold2:#d5bd8d;--academy-muted:#aaa18f;--academy-gold:#b79a62;--academy-line:rgba(215,196,155,.2)}
 main{padding:clamp(22px,4.2vw,62px);max-width:1220px;margin:0 auto;width:100%}
 .academy-kicker,.section-index,.chapter-overline,.edition-mark{font-size:9px;letter-spacing:.19em;text-transform:uppercase;color:var(--academy-gold);font-weight:750}
 .academy-kicker{display:flex;align-items:center;gap:13px;margin:2px 0 18px}.kicker-rule{height:1px;background:var(--academy-line);flex:1}
