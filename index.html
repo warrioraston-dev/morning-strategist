@@ -92,7 +92,8 @@ async function syncPublishedEditions(){
    const at=editions.findIndex(x=>String(x.id)===String(lesson.id));
    if(at>=0)editions[at]=lesson;else{editions.push(lesson);added++;}
   }
-  editions.sort((a,b)=>Date.parse(b.date||"")-Date.parse(a.date||""));\n  state.edition=0;
+  editions.sort((a,b)=>Date.parse(b.date||"")-Date.parse(a.date||""));
+  state.edition=0;
   label.textContent=`SYNCED · ${rows.length} EDITION${rows.length===1?"":"S"}`;
   label.title="Published editions are syncing from the Morning Strategist cloud library.";
   if(added&&state.page!="lesson")render();
