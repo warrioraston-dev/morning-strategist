@@ -196,12 +196,13 @@ function lesson(){
  const chapterNav=sections.map((section,i)=>`<a href="#chapter-${i+1}"><span>${String(i+1).padStart(2,"0")}</span>${esc(section.heading||section.title||"Chapter")}</a>`).join("");
  const visualSectionIndex=sections.findIndex(section=>/VISUAL RECORD|VISUAL ARCHIVE/i.test(section.heading||""));
  const visualMarkup=renderVisuals(x);
+ const distributeGlobalVisuals=!!(x.visuals?.length&&!sections.some(section=>section.visuals?.length)&&sections.some(section=>/HISTORICAL STORY/i.test(section.heading||"")));
  const chapterBody=sections.map((section,i)=>{
   const heading=section.heading||section.title||"Chapter";
   const body=renderChapterStory(section,x);
   const archive=i===visualSectionIndex&&!distributeGlobalVisuals?visualMarkup:"";
   return `<section class="reading-chapter" id="chapter-${i+1}"><div class="chapter-overline">CHAPTER ${String(i+1).padStart(2,"0")}</div><h2>${esc(heading)}</h2>${body}${archive}</section>`;
- }).join("")+(visualSectionIndex<0?visualMarkup:"");
+ }).join("")+(visualSectionIndex<0&&!distributeGlobalVisuals?visualMarkup:"");
  return `
  <div class="reading-topline"><button class="back-link" onclick="go('home')">← THE ACADEMY</button><span>EDITION ${esc(x.id)} · ${esc(x.period)}</span><span>${esc(x.minutes||15)} MIN READ</span></div>
  <header class="reading-cover">
