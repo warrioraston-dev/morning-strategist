@@ -110,7 +110,7 @@ function home(){
  const today=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Zurich",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
  const isToday=iso===today;
  const dateLabel=iso?new Intl.DateTimeFormat("en-GB",{day:"numeric",month:"long",year:"numeric",timeZone:"UTC"}).format(new Date(iso+"T12:00:00Z")):"Date to be confirmed";
- const sections=x.chapters?.length?x.chapters.map(c=>({...c,heading:c.heading||c.title})):x.sections||[];
+ const sections=editionSections(x);
  return `
  <div class="academy-kicker"><span>THE EDITORIAL ACADEMY</span><span class="kicker-rule"></span><span>${isToday?"TODAY'S EDITION":"LATEST PUBLISHED EDITION"}</span></div>
  <section class="today-hero" style="--hero-image:url('${esc(x.image||x.cover?.url||"")}')">
@@ -138,10 +138,39 @@ function home(){
 function renderVisuals(x){return (x.visuals||[]).filter(v=>v.url&&/^https:\/\//i.test(v.url)).map(v=>`<figure style="margin:18px 0"><img src="${esc(v.url)}" alt="${esc(v.alt||v.caption||'Historical visual')}" style="width:100%;max-height:430px;object-fit:contain;background:#111"><figcaption class="muted small" style="margin-top:7px">${esc(v.caption||'')}</figcaption></figure>`).join("")}
 function renderVideos(x){return (x.videos||[]).filter(v=>v.url&&/^https:\/\//i.test(v.url)).map(v=>`<div class="panel" style="margin:10px 0"><div class="tag">${esc(v.channel||'VIDEO')}</div><h3>${esc(v.title||'Historical video')}</h3><p class="muted small">${esc(v.relevance||v.description||'')}</p><a class="ghost" style="display:inline-block;text-decoration:none" href="${esc(v.url)}" target="_blank" rel="noopener">WATCH VIDEO ↗</a></div>`).join("")}
 function renderSources(x){return (x.sources||[]).filter(v=>v.url&&/^https:\/\//i.test(v.url)).map(v=>`<li><a href="${esc(v.url)}" target="_blank" rel="noopener">${esc(v.title||v.url)}</a> <span class="muted small">${esc(v.type||'')}</span></li>`).join("")}
+function editionSections(x){
+ const list=x.chapters?.length?x.chapters.map(c=>({...c,heading:c.heading||c.title})):x.sections||[];
+ return list.filter(section=>!/^CURRICULUM RECORD$/i.test(String(section.heading||section.title||"").trim()));
+}
+function renderReadingParagraphs(value){
+ return String(value||"").split(/\\n\\s*\\n/).map(part=>part.trim()).filter(Boolean).map(part=>`<p>${esc(part).replace(/\\n/g,"<br>")}</p>`).join("");
+}
 function lesson(){
- const x=e(),done=state.completed.includes(x.id),sections=x.chapters?.length?x.chapters.map(c=>({...c,heading:c.heading||c.title})):x.sections||[];
- const coverImage=x.image||x.cover?.url||""; const strategic=x.strategicAnalysis||{}; const modernText=x.modernParallel?.text||x.modernParallel||x.modern||""; const exercise=x.exercise||{}; const chapterNav=sections.map((s,i)=>`<a href="#chapter-${i+1}"><span>0${i+1}</span>${esc(s.heading)}</a>`).join("");
- const chapterBody=sections.map((s,i)=>`<section class="reading-chapter" id="chapter-${i+1}"><div class="chapter-overline">CHAPTER 0${i+1}</div><h2>${esc(s.heading)}</h2><p>${esc(s.body)}</p>${s.visuals?.length?s.visuals.map(v=>`<figure class="chapter-figure"><img src="${esc(v.url)}" alt="${esc(v.alt||v.caption||"Historical image")}"><figcaption>${esc(v.caption||"")}</figcaption></figure>`).join(""):""}</section>`).join("");
+ const x=e(),done=state.completed.includes(x.id);
+ const allSections=editionSections(x);
+ const sections=allSections.filter(section=>{
+  const heading=String(section.heading||"").toUpperCase();
+  if(/STRATEGIC ANATOMY/.test(heading)&&(x.strategicAnatomy||x.strategicAnalysis?.anatomy))return false;
+  if(/MODERN PARALLEL/.test(heading)&&(x.modernParallel||x.modern))return false;
+  if(/PHILOSOPHICAL DIMENSION/.test(heading)&&x.philosophical)return false;
+  if(/ONE PRINCIPLE/.test(heading)&&(x.principle||x.strategicAnalysis?.principle))return false;
+  if(/READING ROOM/.test(heading)&&x.readingRoom)return false;
+  return true;
+ });
+ const coverImage=x.image||x.cover?.url||"";
+ const strategic=x.strategicAnalysis||{};
+ const modernText=x.modernParallel?.text||x.modernParallel||x.modern||"";
+ const exercise=x.exercise||{};
+ const chapterNav=sections.map((section,i)=>`<a href="#chapter-${i+1}"><span>${String(i+1).padStart(2,"0")}</span>${esc(section.heading||section.title||"Chapter")}</a>`).join("");
+ const visualSectionIndex=sections.findIndex(section=>/VISUAL RECORD|VISUAL ARCHIVE/i.test(section.heading||""));
+ const visualMarkup=renderVisuals(x);
+ const chapterBody=sections.map((section,i)=>{
+  const heading=section.heading||section.title||"Chapter";
+  const body=renderReadingParagraphs(section.body||section.text||"");
+  const inlineVisuals=section.visuals?.length?section.visuals.map(v=>`<figure class="chapter-figure"><img src="${esc(v.url)}" alt="${esc(v.alt||v.caption||"Historical image")}"><figcaption>${esc(v.caption||"")}</figcaption></figure>`).join(""):"";
+  const archive=i===visualSectionIndex?visualMarkup:"";
+  return `<section class="reading-chapter" id="chapter-${i+1}"><div class="chapter-overline">CHAPTER ${String(i+1).padStart(2,"0")}</div><h2>${esc(heading)}</h2>${body}${inlineVisuals}${archive}</section>`;
+ }).join("")+(visualSectionIndex<0?visualMarkup:"");
  return `
  <div class="reading-topline"><button class="back-link" onclick="go('home')">← THE ACADEMY</button><span>EDITION ${esc(x.id)} · ${esc(x.period)}</span><span>${esc(x.minutes||15)} MIN READ</span></div>
  <header class="reading-cover">
@@ -153,10 +182,9 @@ function lesson(){
   <section class="editor-briefing"><div class="chapter-overline">THE EDITOR'S BRIEFING</div><h2>The question beneath the story</h2><p>${esc(x.briefing?.centralQuestion||x.question||"What did the decision-maker understand about the situation that others failed to see?")}</p><p class="briefing-context">${esc(x.briefing?.stakes||"As you read, pay attention to the pressures of the period, the limits of available information and the consequences that followed.")}</p></section>
   ${chapterBody}
   ${x.quote?`<blockquote class="editorial-quote">“${esc(x.quote.text||x.quote)}”<cite>— ${esc(x.quote.attribution||"")}</cite></blockquote>`:""}
-  ${renderVisuals(x)}
   ${x.timeline?.length?`<section class="reading-extra"><div class="chapter-overline">THE CHRONOLOGY</div><h2>The event, moment by moment</h2><div class="timeline">${x.timeline.map((it,i)=>`<button class="timeitem ${i===state.timeline?"selected":""}" onclick="state.timeline=${i};render()"><b>${esc(it[0])}</b><strong>${esc(it[1])}</strong>${i===state.timeline?`<p>${esc(it[2])}</p>`:""}</button>`).join("")}</div></section>`:""}
-  <section class="reading-extra strategic-anatomy"><div class="chapter-overline">THE STRATEGIC ANATOMY</div><h2>The principle beneath the decision</h2><h3>${esc(strategic.principle||x.principle||"")}</h3><p>${esc(strategic.anatomy||x.strategicAnatomy||"Examine the decision in the context of the information, constraints, relationships and risks available at the time.")}</p>${x.philosophical?`<h3>The philosophical dimension</h3><p>${esc(x.philosophical)}</p>`:""}</section>
-  <section class="reading-extra modern-parallel"><div class="chapter-overline">A SHORT MODERN PARALLEL</div><h2>Where the principle appears today</h2><p>${esc(modernText)}</p></section>
+  <section class="reading-extra strategic-anatomy"><div class="chapter-overline">THE STRATEGIC ANATOMY</div><h2>The principle beneath the decision</h2><h3>${esc(strategic.principle||x.principle||"")}</h3>${renderReadingParagraphs(strategic.anatomy||x.strategicAnatomy||"Examine the decision in the context of the information, constraints, relationships and risks available at the time.")}${x.philosophical?`<h3>The philosophical dimension</h3>${renderReadingParagraphs(x.philosophical)}`:""}</section>
+  <section class="reading-extra modern-parallel"><div class="chapter-overline">A SHORT MODERN PARALLEL</div><h2>Where the principle appears today</h2>${renderReadingParagraphs(modernText)}</section>
   ${x.videos?.length?`<section class="reading-extra"><div class="chapter-overline">THE VISUAL ARCHIVE</div><h2>Watch the history</h2>${renderVideos(x)}</section>`:""}
   ${x.paths?.length?`<section class="reading-extra"><div class="chapter-overline">FURTHER INVESTIGATION</div><h2>Five paths to explore</h2><div class="panel"><ol>${x.paths.map(v=>`<li style="margin:9px 0">${esc(v.label||"Explore")}: ${v.url&&/^https:\/\//i.test(v.url)?`<a href="${esc(v.url)}" target="_blank" rel="noopener">${esc(v.title||v.url)}</a>`:esc(v.prompt||v.title||"Continue the investigation")}</li>`).join("")}</ol></div></section>`:""}
   ${x.readingRoom?`<section class="reading-extra"><div class="chapter-overline">THE READING ROOM</div><h2>Go deeper</h2><div class="panel">${x.readingRoom.book?`<p><b>Book:</b> ${esc(x.readingRoom.book.title||"")} — ${esc(x.readingRoom.book.why||"")}${x.readingRoom.book.url&&/^https:\/\//i.test(x.readingRoom.book.url)?` <a href="${esc(x.readingRoom.book.url)}" target="_blank" rel="noopener">Open ↗</a>`:""}</p>`:""}${x.readingRoom.documentary?`<p><b>Documentary / lecture:</b> ${esc(x.readingRoom.documentary.title||"")} — ${esc(x.readingRoom.documentary.why||"")}${x.readingRoom.documentary.url&&/^https:\/\//i.test(x.readingRoom.documentary.url)?` <a href="${esc(x.readingRoom.documentary.url)}" target="_blank" rel="noopener">Watch ↗</a>`:""}</p>`:""}${(x.readingRoom.online_resources||[]).map(v=>`<p><b>Online resource:</b> ${esc(v.title||"")} — ${esc(v.why||"")} ${v.url&&/^https:\/\//i.test(v.url)?`<a href="${esc(v.url)}" target="_blank" rel="noopener">Read ↗</a>`:""}</p>`).join("")}</div></section>`:""}
