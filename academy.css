@@ -194,3 +194,11 @@ main{padding:clamp(22px,4.2vw,62px);max-width:1220px;margin:0 auto;width:100%}
 .visual-insight p,.in-story-insight p{font:14px/1.7 var(--sans);color:#d6cbb7;margin:7px 0 0}
 .in-story-insight{margin:24px 0 30px;padding:18px 20px}
 @media(max-width:560px){.chapter-figure{margin:24px 0 28px}.chapter-figure img{max-height:380px}.visual-insight,.in-story-insight{padding:13px 14px}}
+
+/* In-story operational diagrams: maps, terrain, formations and manoeuvres */
+.chapter-diagram{padding:18px 0 22px}
+.strategic-diagram-title{font:22px/1.25 Georgia,serif;color:var(--academy-paper);margin:2px 0 13px}
+.strategic-diagram-canvas{width:100%;overflow:hidden;border:1px solid var(--academy-line);background:#202a25}
+.strategic-diagram-canvas svg{display:block;width:100%;height:auto;max-height:440px}
+.chapter-diagram figcaption span{display:block;margin-top:4px;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--academy-gold2)}
+@media(max-width:560px){.strategic-diagram-title{font-size:19px}.strategic-diagram-canvas svg{min-height:170px}}
