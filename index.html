@@ -140,7 +140,16 @@ function renderVideos(x){return (x.videos||[]).filter(v=>v.url&&/^https:\/\//i.t
 function renderSources(x){return (x.sources||[]).filter(v=>v.url&&/^https:\/\//i.test(v.url)).map(v=>`<li><a href="${esc(v.url)}" target="_blank" rel="noopener">${esc(v.title||v.url)}</a> <span class="muted small">${esc(v.type||'')}</span></li>`).join("")}
 function editionSections(x){
  const list=x.chapters?.length?x.chapters.map(c=>({...c,heading:c.heading||c.title})):x.sections||[];
- return list.filter(section=>!/^CURRICULUM RECORD$/i.test(String(section.heading||section.title||"").trim()));
+ return list.filter(section=>{
+  const heading=String(section.heading||section.title||"").trim().toUpperCase();
+  if(heading==="CURRICULUM RECORD")return false;
+  if(/STRATEGIC ANATOMY/.test(heading)&&(x.strategicAnatomy||x.strategicAnalysis?.anatomy))return false;
+  if(/MODERN PARALLEL/.test(heading)&&(x.modernParallel||x.modern))return false;
+  if(/PHILOSOPHICAL DIMENSION/.test(heading)&&x.philosophical)return false;
+  if(/ONE PRINCIPLE/.test(heading)&&(x.principle||x.strategicAnalysis?.principle))return false;
+  if(/READING ROOM/.test(heading)&&x.readingRoom)return false;
+  return true;
+ });
 }
 function renderReadingParagraphs(value){
  return String(value||"").split(/\n\s*\n/).map(part=>part.trim()).filter(Boolean).map(part=>`<p>${esc(part).replace(/\n/g,"<br>")}</p>`).join("");
