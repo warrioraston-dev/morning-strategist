@@ -163,9 +163,10 @@ function renderChapterStory(section,edition){
  const safeVisuals=attached.filter(v=>v&&v.url&&/^https:\/\//i.test(v.url));
  const at={};
  safeVisuals.forEach((v,i)=>{let n=Number(v.afterParagraph);if(!Number.isFinite(n)||n<1)n=Math.max(1,Math.round((i+1)*chunks.length/(safeVisuals.length+1)));n=Math.min(Math.max(1,n),Math.max(1,chunks.length));(at[n]||(at[n]=[])).push(v);});
- let out="";
- chunks.forEach((chunk,i)=>{out+=renderReadingParagraphs(chunk);(at[i+1]||[]).forEach(v=>{const isMap=/map|campaign|battlefield|route/i.test(String(v.type||""));out+=renderInlineHistoricalVisual(v,isMap);});});
- if(!chunks.length)safeVisuals.forEach(v=>{out+=renderInlineHistoricalVisual(v,/map/i.test(String(v.type||"")));});
+ const renderRange=(from,to)=>{let out="";for(let i=from;i<to;i++){out+=renderReadingParagraphs(chunks[i]);(at[i+1]||[]).forEach(v=>{out+=renderInlineHistoricalVisual(v,/map|campaign|battlefield|route/i.test(String(v.type||v.caption||v.alt||"")));});}return out;};
+ let out=renderRange(0,Math.min(2,chunks.length));
+ if(chunks.length>2){const deeper=renderRange(2,chunks.length),words=chunks.slice(2).join(" ").split(/\s+/).filter(Boolean).length;out+='<details class="deep-dive"><summary>Explore this chapter in depth <span>'+words+' additional words</span></summary><div class="deep-dive-content">'+deeper+'</div></details>';}
+ if(!chunks.length)safeVisuals.forEach(v=>{out+=renderInlineHistoricalVisual(v,/map|campaign|battlefield|route/i.test(String(v.type||"")));});
  if(section.strategicInsight||section.mapInsight){out+='<aside class="in-story-insight"><div class="in-story-insight-label">READ THE STRATEGIC PICTURE</div><p>'+esc(section.strategicInsight||section.mapInsight)+'</p></aside>';}
  return out;
 }
