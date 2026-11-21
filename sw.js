@@ -1,4 +1,4 @@
-const CACHE='morning-strategist-v4';
+const CACHE='morning-strategist-v5';
 const ASSETS=['./','./index.html','./academy.css','./manifest.json','./icon.svg'];
 
 self.addEventListener('install',event=>{
