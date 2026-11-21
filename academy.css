@@ -202,3 +202,33 @@ main{padding:clamp(22px,4.2vw,62px);max-width:1220px;margin:0 auto;width:100%}
 .strategic-diagram-canvas svg{display:block;width:100%;height:auto;max-height:440px}
 .chapter-diagram figcaption span{display:block;margin-top:4px;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--academy-gold2)}
 @media(max-width:560px){.strategic-diagram-title{font-size:19px}.strategic-diagram-canvas svg{min-height:170px}}
+
+/* Greene's 33-strategy curriculum — Editorial Academy */
+.greene-curriculum{padding:52px 0 24px;border-top:1px solid var(--academy-line)}
+.curriculum-heading{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:30px;align-items:center;margin:18px 0 25px}
+.curriculum-heading h2{font:clamp(32px,4.5vw,52px)/1.08 Georgia,serif;font-weight:400;max-width:720px;margin:0 0 12px}
+.curriculum-heading h2 em{color:var(--academy-gold);font-weight:400}
+.curriculum-heading p{font:15px/1.8 Georgia,serif;color:#c9c0b0;max-width:680px;margin:0}
+.curriculum-count{border-left:1px solid var(--academy-line);padding:8px 0 8px 24px;display:flex;align-items:center;gap:13px}
+.curriculum-count strong{font:52px Georgia,serif;color:var(--academy-gold2);font-weight:400}
+.curriculum-count span{font-size:8px;letter-spacing:.14em;line-height:1.7;color:var(--academy-muted)}
+.curriculum-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px}
+.curriculum-card{min-height:225px;padding:17px 14px;background:#1d211f;border:1px solid var(--academy-line);display:flex;flex-direction:column}
+.curriculum-card.current{border-color:rgba(183,154,98,.65);background:linear-gradient(155deg,#292a24,#1d211f)}
+.curriculum-card-top{display:flex;justify-content:space-between;gap:5px;flex-wrap:wrap;font-size:7px;letter-spacing:.11em;color:var(--academy-gold)}
+.curriculum-card h3{font:21px/1.2 Georgia,serif;font-weight:400;margin:20px 0 9px;color:var(--academy-paper)}
+.curriculum-card p{font:11px/1.6 var(--sans);color:var(--academy-muted);margin:0 0 9px}
+.curriculum-card .curriculum-question{font:italic 13px/1.5 Georgia,serif;color:#d8cdb9}
+.curriculum-card-bottom{margin-top:auto;padding-top:13px;border-top:1px solid var(--academy-line);display:grid;gap:6px}
+.curriculum-card-bottom span{font-size:7px;letter-spacing:.13em;color:var(--academy-gold2)}
+.curriculum-card-bottom small{font-size:9px;color:#b8ae9d;line-height:1.4}
+.curriculum-start{margin-top:14px;padding:19px 21px;border:1px solid var(--academy-line);background:#202522;display:flex;justify-content:space-between;align-items:center;gap:18px}
+.curriculum-start strong{display:block;font:23px Georgia,serif;font-weight:400;margin:7px 0 3px}
+.curriculum-start p{font-size:11px;color:var(--academy-muted);margin:0}
+.reading-resources{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:20px 0}
+.reading-resource{padding:17px;background:#1d211f;border:1px solid var(--academy-line)}
+.reading-resource h3{font:20px/1.3 Georgia,serif;font-weight:400;margin:9px 0}
+.reading-resource p{font:12px/1.65 var(--sans);color:var(--academy-muted);margin:0 0 12px}
+.reading-resource a{font-size:8px;letter-spacing:.13em;color:var(--academy-gold2);text-decoration:none;border-bottom:1px solid var(--academy-gold);padding-bottom:4px}
+@media(max-width:1000px){.curriculum-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:650px){.curriculum-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.curriculum-heading{grid-template-columns:1fr;gap:14px}.curriculum-count{border-left:0;border-top:1px solid var(--academy-line);padding:12px 0 0}.curriculum-start{align-items:flex-start;flex-direction:column}.curriculum-start .primary{width:100%}.reading-resources{grid-template-columns:1fr}}
