@@ -81,7 +81,7 @@ let readingObserver=null;
 const e=()=>editions[state.edition];
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 function toast(t){let el=document.getElementById("toast");el.textContent=t;el.classList.remove("hide");setTimeout(()=>el.classList.add("hide"),2100)}
-function go(page){state.page=page;document.querySelectorAll("[data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===page));render();window.scrollTo(0,0)}
+function go(page){state.page=page;document.querySelectorAll("[data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===page));render();if(page==="atlas")syncPublishedEditions();window.scrollTo(0,0)}
 function openEdition(id){const i=editions.findIndex(x=>String(x.id)===String(id));if(i<0)return toast("That edition is not available.");state.edition=i;go("lesson");}
 function continueLesson(){state.page="lesson";document.querySelectorAll("[data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page==="home"));render();const idx=Math.max(0,Number(state.readingProgress[e().id]||0));setTimeout(()=>document.getElementById("chapter-"+(idx+1))?.scrollIntoView({behavior:"smooth",block:"start"}),80);}
 document.querySelectorAll("[data-page]").forEach(b=>b.addEventListener("click",()=>go(b.dataset.page)));
