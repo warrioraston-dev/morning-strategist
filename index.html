@@ -149,14 +149,17 @@ function renderSectionResources(items){return '<div class="reading-resources">'+
 function renderSources(x){return (x.sources||[]).filter(v=>v.url&&/^https:\/\//i.test(v.url)).map(v=>`<li><a href="${esc(v.url)}" target="_blank" rel="noopener">${esc(v.title||v.url)}</a> <span class="muted small">${esc(v.type||'')}</span></li>`).join("")}
 function editionSections(x){
  const list=x.chapters?.length?x.chapters.map(c=>({...c,heading:c.heading||c.title})):x.sections||[];
+ const tenSectionMode=x.editorialFormat==="ten-section-v1";
  return list.filter(section=>{
   const heading=String(section.heading||section.title||"").trim().toUpperCase();
   if(heading==="CURRICULUM RECORD")return false;
-  if(/STRATEGIC ANATOMY/.test(heading)&&(x.strategicAnatomy||x.strategicAnalysis?.anatomy))return false;
-  if(/MODERN PARALLEL/.test(heading)&&(x.modernParallel||x.modern))return false;
-  if(/PHILOSOPHICAL DIMENSION/.test(heading)&&x.philosophical)return false;
-  if(/ONE PRINCIPLE/.test(heading)&&(x.principle||x.strategicAnalysis?.principle))return false;
-  if(/READING ROOM/.test(heading)&&x.readingRoom)return false;
+  if(!tenSectionMode){
+   if(/STRATEGIC ANATOMY/.test(heading)&&(x.strategicAnatomy||x.strategicAnalysis?.anatomy))return false;
+   if(/MODERN PARALLEL/.test(heading)&&(x.modernParallel||x.modern))return false;
+   if(/PHILOSOPHICAL DIMENSION/.test(heading)&&x.philosophical)return false;
+   if(/ONE PRINCIPLE/.test(heading)&&(x.principle||x.strategicAnalysis?.principle))return false;
+   if(/READING ROOM/.test(heading)&&x.readingRoom)return false;
+  }
   return true;
  });
 }
@@ -217,7 +220,7 @@ function toggleDeepReading(button){const items=[...document.querySelectorAll(".d
 function lesson(){
  const x=e(),done=state.completed.includes(x.id);
  const allSections=editionSections(x);
- const sections=allSections.filter(section=>{
+ const sections=x.editorialFormat==="ten-section-v1"?allSections:allSections.filter(section=>{
   const heading=String(section.heading||"").toUpperCase();
   if(/STRATEGIC ANATOMY/.test(heading)&&(x.strategicAnatomy||x.strategicAnalysis?.anatomy))return false;
   if(/MODERN PARALLEL/.test(heading)&&(x.modernParallel||x.modern))return false;
@@ -238,8 +241,9 @@ function lesson(){
   const heading=section.heading||section.title||"Chapter";
   const body=renderChapterStory(section,x);
   const archive=i===visualSectionIndex&&!distributeGlobalVisuals?visualMarkup:"";
-  const simulation=/COMMAND SIMULATION/i.test(heading)?renderCommandSimulation(x):"";
-  return `<section class="reading-chapter" id="chapter-${i+1}"><div class="chapter-overline">CHAPTER ${String(i+1).padStart(2,"0")}</div><h2>${esc(heading)}</h2>${body}${archive}${simulation}</section>`;
+  const simulation=/STRATEGIC EXERCISE|COMMAND SIMULATION/i.test(heading)?renderCommandSimulation(x):"";
+  const chronology=x.editorialFormat==="ten-section-v1"&&/VISUAL RECORD/i.test(heading)&&x.timeline?.length?`<div class="timeline">${x.timeline.map((it,j)=>`<button class="timeitem ${j===Number(state.timeline||0)?"selected":""}" onclick="state.timeline=${j};render()"><b>${esc(it[0])}</b><strong>${esc(it[1])}</strong>${j===Number(state.timeline||0)?`<p>${esc(it[2])}</p>`:""}</button>`).join("")}</div>`:"";
+  return `<section class="reading-chapter" id="chapter-${i+1}"><div class="chapter-overline">CHAPTER ${String(i+1).padStart(2,"0")}</div><h2>${esc(heading)}</h2>${body}${archive}${simulation}${chronology}</section>`;
  }).join("")+(visualSectionIndex<0&&!distributeGlobalVisuals?visualMarkup:"");
  return `
  <div class="reading-topline"><button class="back-link" onclick="go('home')">← THE ACADEMY</button><span>EDITION ${esc(x.id)} · ${esc(x.period)}</span><span>${esc(x.minutes||15)} MIN READ</span></div>
@@ -251,15 +255,15 @@ function lesson(){
  <article class="editorial-article">
   <section class="editor-briefing"><div class="chapter-overline">THE EDITOR'S BRIEFING</div><h2>The question beneath the story</h2><p>${esc(x.briefing?.centralQuestion||x.question||"What did the decision-maker understand about the situation that others failed to see?")}</p><p class="briefing-context">${esc(x.briefing?.stakes||"As you read, pay attention to the pressures of the period, the limits of available information and the consequences that followed.")}</p></section>
   ${chapterBody}
-  ${sections.some(s=>/COMMAND SIMULATION/i.test(s.heading||""))?"":renderCommandSimulation(x)}
+  ${sections.some(s=>/STRATEGIC EXERCISE|COMMAND SIMULATION/i.test(s.heading||""))?"":renderCommandSimulation(x)}
   ${x.quote?`<blockquote class="editorial-quote">“${esc(x.quote.text||x.quote)}”<cite>— ${esc(x.quote.attribution||"")}</cite></blockquote>`:""}
-  ${x.timeline?.length?`<section class="reading-extra"><div class="chapter-overline">THE CHRONOLOGY</div><h2>The event, moment by moment</h2><div class="timeline">${x.timeline.map((it,i)=>`<button class="timeitem ${i===state.timeline?"selected":""}" onclick="state.timeline=${i};render()"><b>${esc(it[0])}</b><strong>${esc(it[1])}</strong>${i===state.timeline?`<p>${esc(it[2])}</p>`:""}</button>`).join("")}</div></section>`:""}
-  ${sections.some(s=>/STRATEGIC DISSECTION/i.test(s.heading||""))?"":`<section class="reading-extra strategic-anatomy"><div class="chapter-overline">THE STRATEGIC ANATOMY</div><h2>The principle beneath the decision</h2><h3>${esc(strategic.principle||x.principle||"")}</h3>${renderLayeredText(strategic.anatomy||x.strategicAnatomy||"Examine the decision in the context of the information, constraints, relationships and risks available at the time.","Explore the strategic reasoning")}${x.philosophical?`<h3>The philosophical dimension</h3>${renderLayeredText(x.philosophical,"Explore the philosophical dimension")}`:""}</section>`}
-  ${sections.some(s=>/MODERN TRANSLATION/i.test(s.heading||""))?"":`<section class="reading-extra modern-parallel"><div class="chapter-overline">A SHORT MODERN PARALLEL</div><h2>Where the principle appears today</h2>${renderReadingParagraphs(modernText)}</section>`}
+  ${x.timeline?.length&&x.editorialFormat!=="ten-section-v1"?`<section class="reading-extra"><div class="chapter-overline">THE CHRONOLOGY</div><h2>The event, moment by moment</h2><div class="timeline">${x.timeline.map((it,i)=>`<button class="timeitem ${i===state.timeline?"selected":""}" onclick="state.timeline=${i};render()"><b>${esc(it[0])}</b><strong>${esc(it[1])}</strong>${i===state.timeline?`<p>${esc(it[2])}</p>`:""}</button>`).join("")}</div></section>`:""}
+  ${(sections.some(s=>/STRATEGIC DISSECTION/i.test(s.heading||""))||(x.editorialFormat==="ten-section-v1"&&sections.some(s=>/STRATEGIC ANATOMY/i.test(s.heading||""))))?"":`<section class="reading-extra strategic-anatomy"><div class="chapter-overline">THE STRATEGIC ANATOMY</div><h2>The principle beneath the decision</h2><h3>${esc(strategic.principle||x.principle||"")}</h3>${renderLayeredText(strategic.anatomy||x.strategicAnatomy||"Examine the decision in the context of the information, constraints, relationships and risks available at the time.","Explore the strategic reasoning")}${x.philosophical?`<h3>The philosophical dimension</h3>${renderLayeredText(x.philosophical,"Explore the philosophical dimension")}`:""}</section>`}
+  ${(sections.some(s=>/MODERN TRANSLATION/i.test(s.heading||""))||(x.editorialFormat==="ten-section-v1"&&sections.some(s=>/MODERN PARALLEL/i.test(s.heading||""))))?"":`<section class="reading-extra modern-parallel"><div class="chapter-overline">A SHORT MODERN PARALLEL</div><h2>Where the principle appears today</h2>${renderReadingParagraphs(modernText)}</section>`}
   ${x.videos?.length&&!sections.some(s=>s.videos?.length)?`<section class="reading-extra"><div class="chapter-overline">THE VISUAL ARCHIVE</div><h2>Watch the history</h2>${renderVideos(x)}</section>`:""}
   ${x.paths?.length&&!sections.some(s=>s.resources?.length)?`<section class="reading-extra"><div class="chapter-overline">FURTHER INVESTIGATION</div><h2>Five paths to explore</h2><div class="panel"><ol>${x.paths.map(v=>`<li style="margin:9px 0">${esc(v.label||"Explore")}: ${v.url&&/^https:\/\//i.test(v.url)?`<a href="${esc(v.url)}" target="_blank" rel="noopener">${esc(v.title||v.url)}</a>`:esc(v.prompt||v.title||"Continue the investigation")}</li>`).join("")}</ol></div></section>`:""}
   ${x.readingRoom&&!sections.some(s=>/READING ROOM/i.test(s.heading||""))?`<section class="reading-extra"><div class="chapter-overline">THE READING ROOM</div><h2>Go deeper</h2><div class="panel">${x.readingRoom.book?`<p><b>Book:</b> ${esc(x.readingRoom.book.title||"")} — ${esc(x.readingRoom.book.why||"")}${x.readingRoom.book.url&&/^https:\/\//i.test(x.readingRoom.book.url)?` <a href="${esc(x.readingRoom.book.url)}" target="_blank" rel="noopener">Open ↗</a>`:""}</p>`:""}${x.readingRoom.documentary?`<p><b>Documentary / lecture:</b> ${esc(x.readingRoom.documentary.title||"")} — ${esc(x.readingRoom.documentary.why||"")}${x.readingRoom.documentary.url&&/^https:\/\//i.test(x.readingRoom.documentary.url)?` <a href="${esc(x.readingRoom.documentary.url)}" target="_blank" rel="noopener">Watch ↗</a>`:""}</p>`:""}${(x.readingRoom.online_resources||[]).map(v=>`<p><b>Online resource:</b> ${esc(v.title||"")} — ${esc(v.why||"")} ${v.url&&/^https:\/\//i.test(v.url)?`<a href="${esc(v.url)}" target="_blank" rel="noopener">Read ↗</a>`:""}</p>`).join("")}</div></section>`:""}
-  ${x.sources?.length?`<section class="reading-extra"><div class="chapter-overline">HISTORICAL RECORD</div><h2>Sources and further reading</h2><ul>${renderSources(x)}</ul></section>`:""}
+  ${x.sources?.length&&x.editorialFormat!=="ten-section-v1"?`<section class="reading-extra"><div class="chapter-overline">HISTORICAL RECORD</div><h2>Sources and further reading</h2><ul>${renderSources(x)}</ul></section>`:""}
   ${(!commandScenario(x)&&(x.question||exercise.scenario))?`<section class="reading-extra challenge-invite"><div class="chapter-overline">COMMANDER'S CHALLENGE</div><h2>Test your judgement</h2><p>${esc(exercise.scenario||x.question||"Test your judgement against the historical decision.")}</p><button class="primary" onclick="go('gym')">ENTER THE STRATEGY GYM →</button></section>`:""}
   <section class="reflection-panel"><div class="chapter-overline">YOUR PRIVATE REFLECTION</div><h2>What will you carry forward?</h2><p>Record the idea that changed, challenged or sharpened your thinking.</p><textarea class="field" id="lessonNote" placeholder="${esc(x.reflection?.question||"What did this story change or clarify in your thinking?")}">${esc(state.notes[x.id]||"")}</textarea><div class="row"><button class="primary" onclick="saveNote('${esc(x.id)}')">SAVE REFLECTION</button><button class="ghost" onclick="complete('${esc(x.id)}')">${done?"✓ COMPLETED":"MARK AS COMPLETE"}</button></div></section>
  </article></div><footer class="academy-footer">THE MORNING STRATEGIST <span>HISTORY TEACHES US TO SEE FURTHER.</span></footer>`;
